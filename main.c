@@ -96,7 +96,7 @@ int main() {
 	total_time_big = ((total_time_big / times) / big_string_size) * 1000;
 	total_time_small = (((total_time_small - clock_cost) / times) / small_string_size) * 1000;
 
-	printf("cost: ((N * %f) + %f) ps/op / s\n\n", total_time_big, total_time_small);
+	printf("cost: ((N * %f) + %f) ps/op\n\n", total_time_big, total_time_small);
 
 	return 0;
 }
