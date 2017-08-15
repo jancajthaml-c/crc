@@ -1,0 +1,1 @@
+int crc32(const char* data, const unsigned int polynomial);
