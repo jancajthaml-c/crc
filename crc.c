@@ -1,8 +1,7 @@
 #include "crc.h"
 
-int crc32(const char* data, const unsigned int polynomial) {
+int crc32(const char* data, const unsigned int polynomial, unsigned long length) {
   int crc = ~0;
-  unsigned long length = sizeof(*data);
 
   const unsigned int p7 = polynomial >> 1;
   const unsigned int p6 = polynomial >> 2;
@@ -27,7 +26,7 @@ loop:
       (((crc << 24) >> 31) & polynomial)
   ) ^ ((unsigned int)crc >> 8);
 
-  goto *(length-- ? &&result : &&loop);
+  goto *(--length ? &&loop : &&result);
 
 result:
   return ~crc;

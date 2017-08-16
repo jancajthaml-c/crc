@@ -1,5 +1,6 @@
 #include "crc.h"
 
+#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/time.h>
@@ -38,19 +39,23 @@ char* rand_string_alloc(size_t size)
      return s;
 }
 
+int _crc32(const char* data, const unsigned int polynomial) {
+	return crc32(data, polynomial, strlen(data));
+}
+
 int main() {
-	printf("\nRunning unit tests \n");
+	printf("\nRunning unit tests\n");
 
 	// expectations
 
-	if (crc32("", 0xedb88320) != 0x0) {
+	if (_crc32("", 0xedb88320) != 0x0) {
 		return 1;
 	}
-	if (crc32("00123014764700968325", 0xedb88320) != 0xf4dbdf21) {
+	if (_crc32("00123014764700968325", 0xedb88320) != 0x8ee65698) {
 		return 1;
 	}
 
-	if (crc32("1234567812345678", 0x11c4dfb5) != 0xf63717a2) {
+	if (_crc32("1234567812345678", 0x11c4dfb5) != 0xed52dcf8) {
 		return 1;
 	}
 
@@ -59,12 +64,12 @@ int main() {
 	// micro benchmark
 
 	int i;
-	unsigned long long times = 100000;
+	unsigned long long times = 1000;
 	
-	size_t big_string_size = 1000000000;
+	size_t big_string_size = 1000000;
 	char* big_string = rand_string_alloc(big_string_size);
 
-	size_t small_string_size = 100;
+	size_t small_string_size = 10;
 	char* small_string = rand_string_alloc(small_string_size);
 
 
@@ -83,20 +88,20 @@ int main() {
 		clock_cost += diff(t1.tv_nsec, t2.tv_nsec);
 
 		clock_gettime(CLOCK_MONOTONIC_RAW, &t1);
-		crc32(big_string, 0xedb88320);
+		_crc32(big_string, 0xedb88320);
 		clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
 		total_time_big += diff(t1.tv_nsec, t2.tv_nsec);
 
 		clock_gettime(CLOCK_MONOTONIC_RAW, &t1);
-		crc32(small_string, 0xedb88320);
+		_crc32(small_string, 0xedb88320);
 		clock_gettime(CLOCK_MONOTONIC_RAW, &t2);
 		total_time_small += diff(t1.tv_nsec, t2.tv_nsec);
 	}
 
-	total_time_big = ((total_time_big / times) / big_string_size) * 1000;
-	total_time_small = (((total_time_small - clock_cost) / times) / small_string_size) * 1000;
+	total_time_big = ((total_time_big / times) / big_string_size);
+	total_time_small = (((total_time_small - clock_cost) / times) / small_string_size);
 
-	printf("cost: ((N * %f) + %f) ps/op\n\n", total_time_big, total_time_small);
+	printf("cost: ((N * %f) + %f) ns/op\n\n", total_time_big, total_time_small);
 
 	return 0;
 }
